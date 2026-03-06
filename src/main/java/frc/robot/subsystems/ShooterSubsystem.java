@@ -110,6 +110,12 @@ public class ShooterSubsystem extends SubsystemBase {
                 shooterRightController.setReference(targetVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
         }
 
+        public void stopShooter(){
+                shooterLeftMotor.stopMotor();
+                shooterMiddleMotor.stopMotor();
+                shooterRightMotor.stopMotor();
+        }
+
 
         public void setColumnVelocity(double targetVelocity) {
                 collumnController.setReference(targetVelocity, ControlType.kPosition, ClosedLoopSlot.kSlot0);

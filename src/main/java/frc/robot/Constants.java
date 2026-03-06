@@ -72,7 +72,7 @@ public final class Constants {
   public static class IntakeConstants{
     public static final int pivotCanID =11;
     public static final int rollerCanID= 13;
-    public static final int pivotForwardSoftLimitRotations = 78;
-    public static final int pivotReverseSoftLimitRotations = 0;
+    public static final double pivotForwardSoftLimitRotations = 13.38;
+    public static final double pivotReverseSoftLimitRotations = 0;
   }
 }
