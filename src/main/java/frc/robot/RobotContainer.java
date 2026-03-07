@@ -204,19 +204,19 @@ public class RobotContainer {
     }
 
    codriverXbox.leftTrigger()
-      .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setShooterVelocity(-5670)))
+      .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setShooterVelocity(-3000)))
       .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopShooter()));
     codriverXbox.rightTrigger()
-      .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setShooterVelocity(5670)))
+      .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setShooterVelocity(3000)))
       .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopShooter()));
 
     codriverXbox.leftBumper()
-      .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(-1000)))
-      .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(0)));
+      .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(-500)))
+      .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopColumn()));
     
     codriverXbox.rightBumper()
-      .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(1000)))
-      .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(0)));
+      .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(500)))
+      .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopColumn()));
     codriverXbox.povUp()
       .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.setPivotVelocity(1000)))
       .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.setPivotVelocity(0)));
@@ -229,11 +229,11 @@ public class RobotContainer {
     codriverXbox.povRight()
       .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.setRollerVelocity(-2000)))
       .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.setRollerVelocity(0)));
-    codriverXbox.x()
-      .onTrue(Commands.runOnce(() -> feeder.setRollerVelocity(1000)))
+    codriverXbox.rightBumper()
+      .onTrue(Commands.runOnce(() -> feeder.setRollerVelocity(3000)))
       .onFalse(Commands.runOnce(() -> feeder.setRollerVelocity(0)));
-    codriverXbox.b()
-      .onTrue(Commands.runOnce(() -> feeder.setRollerVelocity(-1000)))
+    codriverXbox.leftBumper()
+      .onTrue(Commands.runOnce(() -> feeder.setRollerVelocity(-3000)))
       .onFalse(Commands.runOnce(() -> feeder.setRollerVelocity(0)));
   }
 
