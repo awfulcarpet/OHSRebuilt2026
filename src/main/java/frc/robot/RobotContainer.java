@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+// import frc.robot.subsystems.ClimbingSubsystem;
 import frc.robot.subsystems.*;
 import frc.robot.commands.shootCommand;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -27,6 +28,9 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import java.io.File;
+
+import com.pathplanner.lib.auto.NamedCommands;
+
 import swervelib.SwerveInputStream;
 
 /**
@@ -56,6 +60,9 @@ public class RobotContainer {
     // SmartDashboard, allowing selection of desired auto
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private final Command shootAuto;
+    private final Command rightAndShoot;
+    private final Command leftAndShoot;
+    private final Command justShoot;
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled
      * by angular velocity.
@@ -124,7 +131,13 @@ public class RobotContainer {
         feeder = new FeederSubsystem();
         // Configure the trigger bindings
         shootAuto = new shootCommand(m_ShooterSubsystem, feeder, drivebase);
+        rightAndShoot = drivebase.getAutonomousCommand("Right and Shoot");
+        leftAndShoot = drivebase.getAutonomousCommand("Left and Shoot");
+        justShoot = drivebase.getAutonomousCommand("Shoot");
+
         NamedCommands.registerCommand("Shoot Auto", shootAuto);
+        NamedCommands.registerCommand("column",Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(2670)));
+        NamedCommands.registerCommand("shoot",Commands.runOnce(() -> m_ShooterSubsystem.setShooterVelocity(2670)));
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
 
@@ -138,6 +151,10 @@ public class RobotContainer {
         // stop
         autoChooser.addOption("Drive Forward", Commands.runOnce(drivebase::zeroGyroWithAlliance).withTimeout(.2)
                 .andThen(drivebase.driveForward().withTimeout(1)));
+        autoChooser.addOption("Right and Shoot", rightAndShoot);
+        autoChooser.addOption("Left and Shoot", leftAndShoot);
+        autoChooser.addOption("Shoot", justShoot);
+
         // Put the autoChooser on the SmartDashboard
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -243,6 +260,7 @@ public class RobotContainer {
         codriverXbox.leftBumper()
                 .onTrue(Commands.runOnce(() -> feeder.setRollerVelocity(-1000)))
                 .onFalse(Commands.runOnce(() -> feeder.setRollerVelocity(0)));
+
     }
 
     /**
@@ -254,8 +272,8 @@ public class RobotContainer {
         // Pass in the selected auto from the SmartDashboard as our desired autnomous
         // commmand
 
-        // return autoChooser.getSelected();
-        return shootAuto;
+        return autoChooser.getSelected();
+        // return shootAuto;
     }
 
     public void setMotorBrake(boolean brake) {
