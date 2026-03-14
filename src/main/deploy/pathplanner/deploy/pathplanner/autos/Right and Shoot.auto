@@ -13,13 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "column"
+            "name": "Shoot Auto"
           }
         }
       ]
