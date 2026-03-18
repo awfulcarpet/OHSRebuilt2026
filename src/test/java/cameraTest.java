@@ -26,7 +26,7 @@ public class cameraTest {
   }
 
   @Test // marks this method as a test
-  void poseEstimateTest() {
+  void initializationTest() {
     assertNotNull(camera);
   }
    
