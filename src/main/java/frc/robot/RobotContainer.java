@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ShooterConstants;
+
 import java.io.File;
 
 import com.pathplanner.lib.auto.NamedCommands;
@@ -55,13 +57,13 @@ public class RobotContainer {
     // private final ClimbingSubsystem m_ClimbingSubsystem;
     private final FeederSubsystem feeder;
     private final ShooterSubsystem m_ShooterSubsystem;
-    // private final DriverCameraSubsystem m_DriverCameraSubsystem;
+    private final DriverCameraSubsystem m_DriverCameraSubsystem;
 
     // Establish a Sendable Chooser that will be able to be sent to the
     // SmartDashboard, allowing selection of desired auto
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-    private final Command shootAuto;
-    private final Command shootAutoWithTimeout;
+    private final Command maxShootAuto;
+    private final Command maxShootAutoWithTimeout;
     private final Command rightAndShoot;
     private final Command leftAndShoot;
     private final Command justShoot;
@@ -76,7 +78,7 @@ public class RobotContainer {
             () -> driverXbox.getLeftX() * -1)
             .withControllerRotationAxis(driverXbox::getRightX)
             .deadband(OperatorConstants.DEADBAND)
-            .scaleTranslation(0.8)
+            .scaleTranslation(1)
             .allianceRelativeControl(true);
 
     /**
@@ -100,7 +102,7 @@ public class RobotContainer {
             .withControllerRotationAxis(() -> driverXbox.getRawAxis(
                     2))
             .deadband(OperatorConstants.DEADBAND)
-            .scaleTranslation(0.8)
+            .scaleTranslation(1)
             .allianceRelativeControl(true);
     // Derive the heading axis with math!
     SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
@@ -131,17 +133,18 @@ public class RobotContainer {
 
         m_IntakeSubsystem = new IntakeSubsystem();
         // m_ClimbingSubsystem = new ClimbingSubsystem();
-        // m_DriverCameraSubsystem = new DriverCameraSubsystem();
+        m_DriverCameraSubsystem = new DriverCameraSubsystem();
         feeder = new FeederSubsystem();
         // Configure the trigger bindings
-        shootAuto = new shootCommand(m_ShooterSubsystem, feeder, drivebase);
+        maxShootAuto = new shootCommand(m_ShooterSubsystem, feeder, drivebase, ShooterConstants.fullPower);
+        intake = new intakeCommand(m_IntakeSubsystem);
 
-        shootAutoWithTimeout = new shootCommand(m_ShooterSubsystem, feeder, drivebase).withTimeout(20);
+        maxShootAutoWithTimeout = new shootCommand(m_ShooterSubsystem, feeder, drivebase, ShooterConstants.fullPower).withTimeout(20);
         rightAndShoot = drivebase.getAutonomousCommand("Right and Shoot");
         leftAndShoot = drivebase.getAutonomousCommand("Left and Shoot");
         justShoot = drivebase.getAutonomousCommand("Shoot");
 
-        NamedCommands.registerCommand("Shoot Auto", shootAutoWithTimeout);
+        NamedCommands.registerCommand("Shoot Auto", maxShootAutoWithTimeout);
         NamedCommands.registerCommand("column",Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(2670)));
         NamedCommands.registerCommand("shoot",Commands.runOnce(() -> m_ShooterSubsystem.setShooterVelocity(2670)));
 
@@ -218,7 +221,7 @@ public class RobotContainer {
 
         }
         // makes auto with pov left for drivers xbox controller
-        codriverXbox.y().whileTrue(shootAuto);
+        codriverXbox.y().whileTrue(maxShootAuto);
         if (DriverStation.isTest()) {
             drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
 
@@ -282,7 +285,6 @@ public class RobotContainer {
         // commmand
 
         return autoChooser.getSelected();
-        // return shootAuto;
     }
 
     public void setMotorBrake(boolean brake) {
