@@ -65,6 +65,8 @@ public class ShooterSubsystem extends SubsystemBase {
         private RelativeEncoder shooterMiddleEncoder;
         private RelativeEncoder shooterRightEncoder;
         private RelativeEncoder collumnEncoder;
+        private double targetRPM; 
+
 
         // Initialize LinearServo
         private LinearServo linearServo;
@@ -124,14 +126,20 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         public void setShooterVelocity(double targetVelocity) {
-                shooterLeftController.setReference(targetVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+                targetRPM= targetVelocity;
+                shooterLeftController.setReference(targetRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
         }
 
         public void stopShooter(){
                 shooterLeftMotor.stopMotor();
                 
         }
-
+        public void startShooter(){
+                setShooterVelocity(ShooterConstants.fullPower);
+        }
+        public void runBackwards(){
+                setShooterVelocity(-ShooterConstants.fullPower );
+        }
         public void stopColumn(){
                 collumnMotor.stopMotor();
         }
@@ -157,4 +165,10 @@ public class ShooterSubsystem extends SubsystemBase {
                 shooterRightEncoder.getVelocity());
                 SmartDashboard.putNumber("Shooter/Collumn/Velocity", collumnEncoder.getVelocity());
         }
+        public boolean isAtSetpoint(){
+                return Math.abs(shooterLeftEncoder.getVelocity()-targetRPM) <= 60.0;
+        }
+        
+        
+
 }
