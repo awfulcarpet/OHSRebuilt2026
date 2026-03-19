@@ -11,12 +11,14 @@ public class shootCommand extends Command {
     private final ShooterSubsystem m_Shooter;
     private final FeederSubsystem m_Feeder;
     private final SwerveSubsystem m_Swerve;
+    private final int shooterspeed;
     private final Timer timer = new Timer();
 
-    public shootCommand(ShooterSubsystem shooter, FeederSubsystem feeder, SwerveSubsystem swerve) {
+    public shootCommand(ShooterSubsystem shooter, FeederSubsystem feeder, SwerveSubsystem swerve, int shooterVelocity) {
         m_Shooter = shooter;
         m_Feeder = feeder;
         m_Swerve = swerve;
+        shooterspeed = shooterVelocity;
 
         addRequirements(m_Shooter, m_Feeder, m_Swerve);
     }
@@ -26,7 +28,7 @@ public class shootCommand extends Command {
         timer.reset();
         timer.start();
 
-        m_Shooter.setShooterVelocity(3000);
+        m_Shooter.setShooterVelocity(shooterspeed);
     }
 
     @Override
