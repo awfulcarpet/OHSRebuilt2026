@@ -280,7 +280,7 @@ public class SwerveSubsystem extends SubsystemBase {
       // Make the robot move
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
           translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
+          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 1),
           Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
           true,
           false);
@@ -306,7 +306,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
 
       Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-          translationY.getAsDouble()), 0.8);
+          translationY.getAsDouble()), 1);
 
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),

@@ -59,7 +59,7 @@ public class RobotContainer {
     // Establish a Sendable Chooser that will be able to be sent to the
     // SmartDashboard, allowing selection of desired auto
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-    private final Command shootAuto;
+    private final Command maxShootAuto;
     private final Command rightAndShoot;
     private final Command leftAndShoot;
     private final Command justShoot;
@@ -72,7 +72,7 @@ public class RobotContainer {
             () -> driverXbox.getLeftX() * -1)
             .withControllerRotationAxis(driverXbox::getRightX)
             .deadband(OperatorConstants.DEADBAND)
-            .scaleTranslation(0.8)
+            .scaleTranslation(1)
             .allianceRelativeControl(true);
 
     /**
@@ -96,7 +96,7 @@ public class RobotContainer {
             .withControllerRotationAxis(() -> driverXbox.getRawAxis(
                     2))
             .deadband(OperatorConstants.DEADBAND)
-            .scaleTranslation(0.8)
+            .scaleTranslation(1)
             .allianceRelativeControl(true);
     // Derive the heading axis with math!
     SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
@@ -130,12 +130,12 @@ public class RobotContainer {
         m_DriverCameraSubsystem = new DriverCameraSubsystem();
         feeder = new FeederSubsystem();
         // Configure the trigger bindings
-        shootAuto = new shootCommand(m_ShooterSubsystem, feeder, drivebase);
+        maxShootAuto = new shootCommand(m_ShooterSubsystem, feeder, drivebase, 3000);
         rightAndShoot = drivebase.getAutonomousCommand("Right and Shoot");
         leftAndShoot = drivebase.getAutonomousCommand("Left and Shoot");
         justShoot = drivebase.getAutonomousCommand("Shoot");
 
-        NamedCommands.registerCommand("Shoot Auto", shootAuto);
+        NamedCommands.registerCommand("Shoot Auto", maxShootAuto);
         NamedCommands.registerCommand("column",Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(2670)));
         NamedCommands.registerCommand("shoot",Commands.runOnce(() -> m_ShooterSubsystem.setShooterVelocity(2670)));
         configureBindings();
@@ -211,7 +211,7 @@ public class RobotContainer {
 
         }
         // makes auto with pov left for drivers xbox controller
-        codriverXbox.y().whileTrue(shootAuto);
+        codriverXbox.y().whileTrue(maxShootAuto);
         if (DriverStation.isTest()) {
             drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
 
@@ -273,7 +273,6 @@ public class RobotContainer {
         // commmand
 
         return autoChooser.getSelected();
-        // return shootAuto;
     }
 
     public void setMotorBrake(boolean brake) {
