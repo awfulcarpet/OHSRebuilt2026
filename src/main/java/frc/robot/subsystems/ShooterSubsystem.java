@@ -15,11 +15,24 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Components.LinearServo;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLimitSwitch;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -27,16 +40,20 @@ public class ShooterSubsystem extends SubsystemBase {
 
         private SparkFlex shooterLeftMotor = new
         SparkFlex(ShooterConstants.kShooterLeftMotorPort, MotorType.kBrushless);
+       
+        
         private SparkFlex shooterMiddleMotor = new
         SparkFlex(ShooterConstants.kShooterMiddleMotorPort, MotorType.kBrushless);
         private SparkFlex shooterRightMotor = new
         SparkFlex(ShooterConstants.kShooterRightMotorPort, MotorType.kBrushless);
 
-        private SparkFlexConfig shooterConfig = new SparkFlexConfig();
+        private SparkFlexConfig leftConfig = new SparkFlexConfig();
+        private SparkFlexConfig middleConfig = new SparkFlexConfig();
+        private SparkFlexConfig rightConfig = new SparkFlexConfig();
         private SparkFlexConfig collumnConfig = new SparkFlexConfig();
 
         private SparkClosedLoopController shooterLeftController =
-        shooterLeftMotor.getClosedLoopController();
+                shooterLeftMotor.getClosedLoopController();
         private SparkClosedLoopController shooterMiddleController =
         shooterMiddleMotor.getClosedLoopController();
         private SparkClosedLoopController shooterRightController =
@@ -48,18 +65,20 @@ public class ShooterSubsystem extends SubsystemBase {
         private RelativeEncoder shooterMiddleEncoder;
         private RelativeEncoder shooterRightEncoder;
         private RelativeEncoder collumnEncoder;
+        private double targetRPM; 
+
 
         // Initialize LinearServo
         private LinearServo linearServo;
 
         public ShooterSubsystem() {
-                shooterConfig.inverted(false).idleMode(IdleMode.kCoast);
+                leftConfig.inverted(false).idleMode(IdleMode.kCoast);
                 collumnConfig.inverted(false).idleMode(IdleMode.kCoast);
 
-                shooterConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
+                leftConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
                 collumnConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
 
-                shooterConfig.closedLoop
+                leftConfig.closedLoop
                                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                                 .p(0.1)
                                 .i(0)
@@ -86,9 +105,11 @@ public class ShooterSubsystem extends SubsystemBase {
                                 .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
                                 .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
-                shooterLeftMotor.configure(shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-                shooterMiddleMotor.configure(shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-                shooterRightMotor.configure(shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+                shooterLeftMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+                middleConfig.follow(shooterLeftMotor.getDeviceId(), true);
+                rightConfig.follow(shooterLeftMotor.getDeviceId(), true);
+                shooterMiddleMotor.configure(middleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+                shooterRightMotor.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
                 collumnMotor.configure(collumnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
                 
                 shooterLeftEncoder = shooterLeftMotor.getEncoder();
@@ -105,17 +126,20 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         public void setShooterVelocity(double targetVelocity) {
-                shooterLeftController.setReference(targetVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
-                shooterMiddleController.setReference(targetVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
-                shooterRightController.setReference(targetVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+                targetRPM= targetVelocity;
+                shooterLeftController.setReference(targetRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
         }
 
         public void stopShooter(){
                 shooterLeftMotor.stopMotor();
-                shooterMiddleMotor.stopMotor();
-                shooterRightMotor.stopMotor();
+                
         }
-
+        public void startShooter(){
+                setShooterVelocity(ShooterConstants.fullPower);
+        }
+        public void runBackwards(){
+                setShooterVelocity(-ShooterConstants.fullPower );
+        }
         public void stopColumn(){
                 collumnMotor.stopMotor();
         }
@@ -141,4 +165,10 @@ public class ShooterSubsystem extends SubsystemBase {
                 shooterRightEncoder.getVelocity());
                 SmartDashboard.putNumber("Shooter/Collumn/Velocity", collumnEncoder.getVelocity());
         }
+        public boolean isAtSetpoint(){
+                return Math.abs(shooterLeftEncoder.getVelocity()-targetRPM) <= 60.0;
+        }
+        
+        
+
 }

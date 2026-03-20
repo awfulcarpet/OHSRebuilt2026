@@ -59,6 +59,7 @@ public final class Constants {
     public static final int kShooterLeftMotorPort = 15;
     public static final int kShooterRightMotorPort = 17;
     public static final int kShooterMiddleMotorPort = 16;
+    public static final int fullPower = 3000;
   }
 
   public static class OperatorConstants {
@@ -74,5 +75,6 @@ public final class Constants {
     public static final int rollerCanID= 13;
     public static final double pivotForwardSoftLimitRotations = 13.38;
     public static final double pivotReverseSoftLimitRotations = 0;
+    public static final double maxRollerSpeed= 2000;
   }
 }

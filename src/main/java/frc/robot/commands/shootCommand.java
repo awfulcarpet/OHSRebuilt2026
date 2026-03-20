@@ -34,7 +34,7 @@ public class shootCommand extends Command {
     @Override
     public void execute() {
 
-        if (timer.get() > 1.5) {
+        if (m_Shooter.isAtSetpoint()) {
             m_Shooter.setColumnVelocity(250);
             m_Feeder.setRollerVelocity(1000);
         }
@@ -52,6 +52,6 @@ public class shootCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return timer.get() > 20;
+        return false;
     }
 }
