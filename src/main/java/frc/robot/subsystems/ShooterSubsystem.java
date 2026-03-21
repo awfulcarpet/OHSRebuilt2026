@@ -54,10 +54,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
         private SparkClosedLoopController shooterLeftController =
                 shooterLeftMotor.getClosedLoopController();
-        private SparkClosedLoopController shooterMiddleController =
-        shooterMiddleMotor.getClosedLoopController();
-        private SparkClosedLoopController shooterRightController =
-        shooterRightMotor.getClosedLoopController();
 
          private SparkClosedLoopController collumnController = collumnMotor.getClosedLoopController();
 
@@ -106,8 +102,15 @@ public class ShooterSubsystem extends SubsystemBase {
                                 .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
                 shooterLeftMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-                middleConfig.follow(shooterLeftMotor.getDeviceId(), true);
-                rightConfig.follow(shooterLeftMotor.getDeviceId(), true);
+
+                middleConfig
+                        .apply(leftConfig)
+                        .follow(shooterLeftMotor, false);
+                rightConfig
+                        .apply(leftConfig)
+                        .follow(shooterLeftMotor,false);
+
+
                 shooterMiddleMotor.configure(middleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
                 shooterRightMotor.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
                 collumnMotor.configure(collumnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -116,6 +119,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 shooterMiddleEncoder = shooterMiddleMotor.getEncoder();
                 shooterRightEncoder = shooterRightMotor.getEncoder();
                 collumnEncoder = collumnMotor.getEncoder();
+                
 
                 // linearServo = new LinearServo(0, 0, 0);
 
