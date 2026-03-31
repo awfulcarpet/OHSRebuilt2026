@@ -60,8 +60,12 @@ public final class Constants {
     public static final int kShooterRightMotorPort = 17;
     public static final int kShooterMiddleMotorPort = 16;
     public static final int kAngleMakerPort= 18;
+    public static final int kShooterKickerPort = 20;
     public static final int fullPower = 3000;
     public static final int tempPowerforAngle =67;
+    public static final int trenchRPM = 6534;
+    public static final int hubRPM = 6011;
+    public static final int rpmTolerance = 163;
   }
 
   public static class OperatorConstants {

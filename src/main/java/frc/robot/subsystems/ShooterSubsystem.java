@@ -37,59 +37,60 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ShooterSubsystem extends SubsystemBase {
 
         private SparkFlex collumnMotor = new SparkFlex(ShooterConstants.kCollumnMotorPort, MotorType.kBrushless);
+        private SparkFlex shooterLeftMotor = new SparkFlex(ShooterConstants.kShooterLeftMotorPort, MotorType.kBrushless);
+        private SparkFlex shooterMiddleMotor = new SparkFlex(ShooterConstants.kShooterMiddleMotorPort, MotorType.kBrushless);
+        private SparkFlex shooterRightMotor = new SparkFlex(ShooterConstants.kShooterRightMotorPort, MotorType.kBrushless);
+        private SparkFlex angleMakerMotor = new SparkFlex(ShooterConstants.kAngleMakerPort, MotorType.kBrushless);
+        private SparkFlex shooterKickerMotor = new SparkFlex(ShooterConstants.kShooterKickerPort, MotorType.kBrushless);
 
-        private SparkFlex shooterLeftMotor = new
-        SparkFlex(ShooterConstants.kShooterLeftMotorPort, MotorType.kBrushless);
-        private SparkFlex shooterMiddleMotor = new
-        SparkFlex(ShooterConstants.kShooterMiddleMotorPort, MotorType.kBrushless);
-        private SparkFlex shooterRightMotor = new
-        SparkFlex(ShooterConstants.kShooterRightMotorPort, MotorType.kBrushless);
 
-        private SparkFlex angleMakerMotor = new 
-        SparkFlex(ShooterConstants.kAngleMakerPort, MotorType.kBrushless);
 
         private SparkFlexConfig leftConfig = new SparkFlexConfig();
         private SparkFlexConfig middleConfig = new SparkFlexConfig();
         private SparkFlexConfig rightConfig = new SparkFlexConfig();
         private SparkFlexConfig collumnConfig = new SparkFlexConfig();
         private SparkFlexConfig angleMakerConfig = new SparkFlexConfig();
+        private SparkFlexConfig kickerConfig = new SparkFlexConfig();
 
-        private SparkClosedLoopController shooterLeftController =
-                shooterLeftMotor.getClosedLoopController();
+        private SparkClosedLoopController shooterLeftController = shooterLeftMotor.getClosedLoopController();
         private SparkClosedLoopController collumnController = collumnMotor.getClosedLoopController();
         private SparkClosedLoopController angleMakerController = angleMakerMotor.getClosedLoopController();
+        private SparkClosedLoopController shooterKickerController = shooterKickerMotor.getClosedLoopController();
 
         private RelativeEncoder shooterLeftEncoder;
         private RelativeEncoder shooterMiddleEncoder;
         private RelativeEncoder shooterRightEncoder;
         private RelativeEncoder collumnEncoder;
         private RelativeEncoder angleMakerEncoder;
+        private RelativeEncoder shooterKickEncoder;
 
         private double targetRPM; 
 
 
         // Initialize LinearServo
-        private LinearServo linearServo;
+        // private LinearServo linearServo;
 
         public ShooterSubsystem() {
                 leftConfig.inverted(false).idleMode(IdleMode.kCoast);
                 collumnConfig.inverted(false).idleMode(IdleMode.kCoast);
                 angleMakerConfig.inverted(false).idleMode(IdleMode.kCoast);
+                kickerConfig.inverted(false).idleMode(IdleMode.kCoast);
 
                 leftConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
                 collumnConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
-                angleMakerConfig.encoder.inverted(false).idleMode(IdleMode.kCoast);
+                angleMakerConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
+                kickerConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
 
                 leftConfig.closedLoop
                                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                                .p(0.1)
+                                .p(0.3)
                                 .i(0)
                                 .d(0)
                                 .outputRange(-1, 1)
-                                .p(0.0001, ClosedLoopSlot.kSlot1)
+                                .p(0.0003, ClosedLoopSlot.kSlot1)
                                 .i(0, ClosedLoopSlot.kSlot1)
                                 .d(0, ClosedLoopSlot.kSlot1)
-                                .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
+                                .velocityFF(1.0 / 6704, ClosedLoopSlot.kSlot1)
                                 .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
                 angleMakerConfig.closedLoop
                                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
