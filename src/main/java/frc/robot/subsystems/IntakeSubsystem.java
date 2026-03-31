@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -39,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private SparkLimitSwitch forwardLimitSwitch;
     private SparkLimitSwitch reverseLimitSwitch;
     private RelativeEncoder rollerEncoder;
-    private RelativeEncoder pivotEncoder;
+    private AbsoluteEncoder pivotEncoder;
     private RelativeEncoder secondaryPivotEncoder;
 
     public IntakeSubsystem() {
@@ -61,7 +62,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         forwardLimitSwitch = pivotMotor.getForwardLimitSwitch();
         reverseLimitSwitch = pivotMotor.getReverseLimitSwitch();
-        pivotEncoder = pivotMotor.getEncoder();
+        pivotEncoder = pivotMotor.getAbsoluteEncoder();
 
         pivotConfig.limitSwitch
                 .forwardLimitSwitchType(Type.kNormallyOpen)
@@ -108,7 +109,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
                 .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
         pivotConfig.closedLoop
-                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
                 // Set PID values for position control. We don't need to pass a closed loop
                 // slot, as it will default to slot 0.
                 .p(0.1)
@@ -129,7 +130,7 @@ public class IntakeSubsystem extends SubsystemBase {
         secondaryPivotEncoder = secondaryPivotMotor.getEncoder();
         
 
-        pivotEncoder.setPosition(0);
+
         SmartDashboard.setDefaultNumber("Intake/Pivot/Position", 0);
         SmartDashboard.setDefaultNumber("Intake/Pivot/Velocity", 0);
         SmartDashboard.setDefaultBoolean("Intake/Pivot/Reset Encoder", false);
@@ -176,10 +177,6 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Pivot/Applied Output", pivotMotor.getAppliedOutput());
         SmartDashboard.putNumber("Intake/Roller/Velocity", rollerEncoder.getVelocity());
         SmartDashboard.putNumber("Intake/Roller/Applied Output", rollerMotor.getAppliedOutput());
-        if (SmartDashboard.getBoolean("Intake/Pivot/Reset Encoder", false)) {
-                pivotEncoder.setPosition(0);
-                SmartDashboard.putBoolean("Intake/Pivot/Reset Encoder", false);
-        }
     }
 
 }    
