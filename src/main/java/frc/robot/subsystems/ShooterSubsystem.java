@@ -16,33 +16,20 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
-// import frc.robot.Components.LinearServo;
-// import com.revrobotics.RelativeEncoder;
-// import com.revrobotics.spark.ClosedLoopSlot;
-// import com.revrobotics.spark.SparkBase.ControlType;
-// import com.revrobotics.spark.SparkBase.PersistMode;
-// import com.revrobotics.spark.SparkBase.ResetMode;
-// import com.revrobotics.spark.SparkClosedLoopController;
-// import com.revrobotics.spark.SparkLimitSwitch;
-// import com.revrobotics.spark.SparkLowLevel.MotorType;
-// import com.revrobotics.spark.SparkMax;
-// import com.revrobotics.spark.config.LimitSwitchConfig.Type;
-// import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-// import com.revrobotics.spark.config.SparkMaxConfig;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-// import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 
 public class ShooterSubsystem extends SubsystemBase {
 
         private SparkFlex kickerMotor = new SparkFlex(ShooterConstants.kKickerMotorPort, MotorType.kBrushless);
-        private SparkFlex shooterLeftMotor = new SparkFlex(ShooterConstants.kShooterLeftMotorPort, MotorType.kBrushless);
-        private SparkFlex shooterMiddleMotor = new SparkFlex(ShooterConstants.kShooterMiddleMotorPort, MotorType.kBrushless);
-        private SparkFlex shooterRightMotor = new SparkFlex(ShooterConstants.kShooterRightMotorPort, MotorType.kBrushless);
+        private SparkFlex shooterLeftMotor = new SparkFlex(ShooterConstants.kShooterLeftMotorPort,
+                        MotorType.kBrushless);
+        private SparkFlex shooterMiddleMotor = new SparkFlex(ShooterConstants.kShooterMiddleMotorPort,
+                        MotorType.kBrushless);
+        private SparkFlex shooterRightMotor = new SparkFlex(ShooterConstants.kShooterRightMotorPort,
+                        MotorType.kBrushless);
         private SparkFlex angleMakerMotor = new SparkFlex(ShooterConstants.kAngleMakerPort, MotorType.kBrushless);
 
-
-
+        private SparkFlexConfig shooterConfig = new SparkFlexConfig();
         private SparkFlexConfig leftConfig = new SparkFlexConfig();
         private SparkFlexConfig middleConfig = new SparkFlexConfig();
         private SparkFlexConfig rightConfig = new SparkFlexConfig();
@@ -62,77 +49,71 @@ public class ShooterSubsystem extends SubsystemBase {
         // Initialize LinearServo
         // private LinearServo linearServo;
 
-        public enum ShooterState { IDLE, SPIN_UP, READY, FIRING, RECOVERY }
+        public enum ShooterState {
+                IDLE, SPIN_UP, READY, FIRING, RECOVERY
+        }
+
         private ShooterState state = ShooterState.IDLE;
         private double currentTarget = 0;
         private final Timer firingTimer = new Timer();
 
         public ShooterSubsystem() {
-                leftConfig.inverted(false).idleMode(IdleMode.kCoast);
+                shooterConfig.inverted(false).idleMode(IdleMode.kCoast);
                 kickerConfig.inverted(false).idleMode(IdleMode.kCoast);
                 angleMakerConfig.inverted(false).idleMode(IdleMode.kCoast);
 
-                leftConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
+                shooterConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
                 kickerConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
                 angleMakerConfig.encoder.positionConversionFactor(1).velocityConversionFactor(1);
 
-                leftConfig.closedLoop
+                shooterConfig.closedLoop
+                                .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
                                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                                .p(0.1)
-                                .i(0)
-                                .d(0)
-                                .outputRange(-1, 1)
                                 .p(0.0001, ClosedLoopSlot.kSlot1)
                                 .i(0, ClosedLoopSlot.kSlot1)
-                                .d(0, ClosedLoopSlot.kSlot1)
-                                .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
-                                .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
+                                .d(0, ClosedLoopSlot.kSlot1).feedForward
+                                .kS(0, ClosedLoopSlot.kSlot1)
+                                .kV(1 / 5767, ClosedLoopSlot.kSlot1);
+
                 angleMakerConfig.closedLoop
+                                .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
                                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                                .p(0.1)
-                                .i(0)
-                                .d(0)
-                                .outputRange(-1, 1)
                                 .p(0.0001, ClosedLoopSlot.kSlot1)
                                 .i(0, ClosedLoopSlot.kSlot1)
-                                .d(0, ClosedLoopSlot.kSlot1)
-                                .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
-                                .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
-
+                                .d(0, ClosedLoopSlot.kSlot1).feedForward
+                                .kS(0, ClosedLoopSlot.kSlot1)
+                                .kV(1 / 5767, ClosedLoopSlot.kSlot1);
                 kickerConfig.closedLoop
+                                .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
                                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                                .p(0.1)
-                                .i(0)
-                                .d(0)
-                                .outputRange(-1, 1)
                                 .p(0.0001, ClosedLoopSlot.kSlot1)
                                 .i(0, ClosedLoopSlot.kSlot1)
-                                .d(0, ClosedLoopSlot.kSlot1)
-                                .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
-                                .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
+                                .d(0, ClosedLoopSlot.kSlot1).feedForward
+                                .kS(0, ClosedLoopSlot.kSlot1)
+                                .kV(1 / 5767, ClosedLoopSlot.kSlot1);
 
-                shooterLeftMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
                 middleConfig
-                        .apply(leftConfig)
-                        .follow(shooterLeftMotor, false);
+                                .apply(shooterConfig);
                 rightConfig
-                        .apply(leftConfig)
-                        .follow(shooterLeftMotor,false);
+                                .apply(shooterConfig);
+                leftConfig
+                                .apply(shooterConfig);              
 
-
-                shooterMiddleMotor.configure(middleConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-                shooterRightMotor.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+                shooterLeftMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+                shooterMiddleMotor.configure(middleConfig, ResetMode.kResetSafeParameters,
+                                PersistMode.kPersistParameters);
+                shooterRightMotor.configure(rightConfig, ResetMode.kResetSafeParameters,
+                                PersistMode.kPersistParameters);
                 kickerMotor.configure(kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-                angleMakerMotor.configure(angleMakerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+                angleMakerMotor.configure(angleMakerConfig, ResetMode.kResetSafeParameters,
+                                PersistMode.kPersistParameters);
 
-                
                 shooterLeftEncoder = shooterLeftMotor.getEncoder();
                 shooterMiddleEncoder = shooterMiddleMotor.getEncoder();
                 shooterRightEncoder = shooterRightMotor.getEncoder();
                 kickerEncoder = kickerMotor.getEncoder();
-                angleMakerEncoder= angleMakerMotor.getEncoder();
-                
+                angleMakerEncoder = angleMakerMotor.getEncoder();
 
                 // linearServo = new LinearServo(0, 0, 0);
 
@@ -150,7 +131,7 @@ public class ShooterSubsystem extends SubsystemBase {
                         currentTarget = targetRPM;
                         setShooterVelocity(currentTarget);
                         setAngleMakerVelocity(ShooterConstants.angleRPM);
-                        state = ShooterState.SPIN_UP;   
+                        state = ShooterState.SPIN_UP;
                 }
         }
 
@@ -163,57 +144,62 @@ public class ShooterSubsystem extends SubsystemBase {
         public ShooterState getState() {
                 return state;
         }
-        
-        public void setShooterVelocity(double targetShooterVelocity) {
-                shooterLeftController.setReference(targetShooterVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
-                
-        }
-        public void setKickerVelocity(double targetVelocity) {
-                kickerController.setReference(targetVelocity, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-         }
-         public void setAngleMakerVelocity(double targetVelocity){
-                angleMakerController.setReference(targetVelocity, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-         }
 
-        public void stopShooter(){
+        public void setShooterVelocity(double targetShooterVelocity) {
+                shooterLeftController.setSetpoint(targetShooterVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+
+        }
+
+        public void setKickerVelocity(double targetVelocity) {
+                kickerController.setSetpoint(targetVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+        }
+
+        public void setAngleMakerVelocity(double targetVelocity) {
+                angleMakerController.setSetpoint(targetVelocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+        }
+
+        public void stopShooter() {
                 shooterLeftMotor.stopMotor();
                 angleMakerMotor.stopMotor();
-                
+
         }
-        public void trenchShot(){
+
+        public void trenchShot() {
                 setShooterVelocity(ShooterConstants.trenchRPM);
                 setAngleMakerVelocity(ShooterConstants.angleRPM);
         }
-        public void closeShot(){
+
+        public void closeShot() {
                 setShooterVelocity(ShooterConstants.hubRPM);
                 setAngleMakerVelocity(ShooterConstants.angleRPM);
         }
 
-        public void startShooter(){
+        public void startShooter() {
                 setShooterVelocity(ShooterConstants.fullPower);
         }
-        public void runBackwards(){
+
+        public void runBackwards() {
                 setShooterVelocity(-ShooterConstants.fullPower);
         }
-        public void stopKicker(){
+
+        public void stopKicker() {
                 kickerMotor.stopMotor();
         }
-        public void startAngleMaker(){
+
+        public void startAngleMaker() {
                 setAngleMakerVelocity(ShooterConstants.angleRPM);
         }
 
-
         // Set the position of the linear servo
         // public void setLinearServoPosition(double targetPosition) {
-        //         linearServo.setPosition(targetPosition);
+        // linearServo.setPosition(targetPosition);
         // }
-
 
         @Override
         public void periodic() {
                 switch (state) {
                         case IDLE:
-                                 break;
+                                break;
                         case SPIN_UP:
                                 if (isAtSetpoint(currentTarget)) {
                                         state = ShooterState.READY;
@@ -236,22 +222,20 @@ public class ShooterSubsystem extends SubsystemBase {
                                 break;
                 }
 
-                SmartDashboard.putNumber("Shooter/Shooter Left/Velocity",shooterLeftEncoder.getVelocity());
-                SmartDashboard.putNumber("Shooter/Shooter Middle/Velocity",shooterMiddleEncoder.getVelocity());
-                SmartDashboard.putNumber("Shooter/Shooter Right/Velocity",shooterRightEncoder.getVelocity());
+                SmartDashboard.putNumber("Shooter/Shooter Left/Velocity", shooterLeftEncoder.getVelocity());
+                SmartDashboard.putNumber("Shooter/Shooter Middle/Velocity", shooterMiddleEncoder.getVelocity());
+                SmartDashboard.putNumber("Shooter/Shooter Right/Velocity", shooterRightEncoder.getVelocity());
                 SmartDashboard.putNumber("Shooter/Kicker/Velocity", kickerEncoder.getVelocity());
                 SmartDashboard.putNumber("Shooter/Angle Maker/Velocity", angleMakerEncoder.getVelocity());
                 SmartDashboard.putBoolean("Shooter/ Shooter Ready", isAtSetpoint(currentTarget));
 
-            
         }
-        public boolean isAtSetpoint(double shooterTarget){
-                return 
-                Math.abs(shooterLeftEncoder.getVelocity() - shooterTarget) <= ShooterConstants.rpmTolerance
-                &&
-                Math.abs(angleMakerEncoder.getVelocity() - ShooterConstants.angleRPM) <= ShooterConstants.rpmTolerance;
+
+        public boolean isAtSetpoint(double shooterTarget) {
+                return (Math.abs(shooterLeftEncoder.getVelocity() - shooterTarget) <= ShooterConstants.rpmTolerance
+                                &&
+                                Math.abs(angleMakerEncoder.getVelocity()
+                                                - ShooterConstants.angleRPM) <= ShooterConstants.rpmTolerance);
         }
-        
-        
 
 }
