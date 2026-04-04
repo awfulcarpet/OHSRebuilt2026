@@ -33,11 +33,15 @@ public class IntakeSubsystem extends SubsystemBase {
             MotorType.kBrushless);
     private SparkFlexConfig pivotConfig = new SparkFlexConfig();
     private SparkClosedLoopController pivotController = pivotMotor.getClosedLoopController();
+    private SparkFlex secondaryPivotMotor = new SparkFlex(IntakeConstants.secondaryPivotCanID,
+             MotorType.kBrushless);
+    private SparkFlexConfig secondaryPivotConfig = new SparkFlexConfig();
 
     private SparkLimitSwitch forwardLimitSwitch;
     private SparkLimitSwitch reverseLimitSwitch;
     private RelativeEncoder rollerEncoder;
     private AbsoluteEncoder pivotEncoder;
+    private RelativeEncoder secondaryPivotEncoder;
 
     public IntakeSubsystem() {
 
@@ -121,6 +125,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
         rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        secondaryPivotConfig.follow(secondaryPivotMotor.getDeviceId(), true);
+        secondaryPivotMotor.configure(secondaryPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        secondaryPivotEncoder = secondaryPivotMotor.getEncoder();
+        
 
 
         SmartDashboard.setDefaultNumber("Intake/Pivot/Position", 0);
