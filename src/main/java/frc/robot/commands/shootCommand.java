@@ -34,8 +34,8 @@ public class shootCommand extends Command {
     @Override
     public void execute() {
 
-        if (m_Shooter.isAtSetpoint()) {
-            m_Shooter.setColumnVelocity(250);
+        if (m_Shooter.isAtSetpoint(3000)) {
+            m_Shooter.setKickerVelocity(250);
             m_Feeder.setRollerVelocity(1000);
         }
     }
@@ -43,7 +43,7 @@ public class shootCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         m_Shooter.stopShooter();
-        m_Shooter.stopColumn();
+        m_Shooter.stopKicker();
         m_Feeder.setRollerVelocity(0);
 
         timer.stop();

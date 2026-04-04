@@ -26,7 +26,7 @@ class ShooterTest {
 
     @Test
     void shooterTest() {
-        m_ShooterSubsystem.setColumnVelocity(67);
+        m_ShooterSubsystem.setKickerVelocity(67);
         m_ShooterSubsystem.setShooterVelocity(67);
         // m_ShooterSubsystem.setLinearServoPosition(67);
     }

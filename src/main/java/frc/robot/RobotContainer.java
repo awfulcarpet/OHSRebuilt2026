@@ -146,7 +146,7 @@ public class RobotContainer {
         justShoot = drivebase.getAutonomousCommand("Shoot");
 
         NamedCommands.registerCommand("Shoot Auto", maxShootAutoWithTimeout);
-        NamedCommands.registerCommand("column",Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(2670)));
+        NamedCommands.registerCommand("column",Commands.runOnce(() -> m_ShooterSubsystem.setKickerVelocity(2670)));
         NamedCommands.registerCommand("shoot",Commands.runOnce(() -> m_ShooterSubsystem.setShooterVelocity(2670)));
 
         configureBindings();
@@ -247,12 +247,14 @@ public class RobotContainer {
                 .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopShooter()));
 
         codriverXbox.leftBumper()
-                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(-250)))
-                .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopColumn()));
+                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setKickerVelocity(-250)))
+                .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopKicker()));
 
         codriverXbox.rightBumper()
-                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setColumnVelocity(250)))
-                .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopColumn()));
+                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setKickerVelocity(250)))
+                .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopKicker()));
+        codriverXbox.povUp()
+                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.startAngleMaker()));
         // codriverXbox.povUp()
         //         .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.pivotIn()))
         //         .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.setPivotVelocity(0)));
