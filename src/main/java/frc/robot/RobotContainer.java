@@ -245,36 +245,41 @@ public class RobotContainer {
         codriverXbox.rightTrigger()
                 .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.startShooter()))
                 .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopShooter()));
+        
+        codriverXbox.leftTrigger()
+                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setKickerVelocity(-ShooterConstants.angleRPM)))
+                .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.setKickerVelocity(ShooterConstants.angleRPM)));
+        codriverXbox.rightTrigger()
+                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.startShooter()))
+                .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopShooter()));
 
         codriverXbox.leftBumper()
                 .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setKickerVelocity(-250)))
                 .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopKicker()));
-
         codriverXbox.rightBumper()
                 .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.setKickerVelocity(250)))
                 .onFalse(Commands.runOnce(() -> m_ShooterSubsystem.stopKicker()));
-        codriverXbox.povUp()
-                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.startAngleMaker()));
-        // codriverXbox.povUp()
-        //         .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.pivotIn()))
-        //         .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.setPivotVelocity(0)));
-        // codriverXbox.povDown()
-        //         .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.pivotOut()))
-        //         .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.setPivotVelocity(0)));
-        // codriverXbox.povLeft()
-        //         .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.rollersIn()))
-        //         .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.stopRollers()));
-        // codriverXbox.povRight()
-        //         .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.rollersOut()))
-        //         .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.stopRollers()));
-   
-        codriverXbox.x().whileTrue(intake);
         codriverXbox.rightBumper()
                 .onTrue(Commands.runOnce(() -> feeder.setRollerVelocity(1000)))
                 .onFalse(Commands.runOnce(() -> feeder.setRollerVelocity(0)));
         codriverXbox.leftBumper()
                 .onTrue(Commands.runOnce(() -> feeder.setRollerVelocity(-1000)))
                 .onFalse(Commands.runOnce(() -> feeder.setRollerVelocity(0)));
+
+        codriverXbox.povUp()
+                .onTrue(Commands.runOnce(() -> m_ShooterSubsystem.startAngleMaker()));
+        codriverXbox.povUp()
+                .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.pivotIn()))
+                .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.setPivotVelocity(0)));
+        codriverXbox.povDown()
+                .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.pivotOut()))
+                .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.setPivotVelocity(0)));
+        codriverXbox.x()
+                .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.rollersIn()))
+                .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.stopRollers()));
+        codriverXbox.b()
+                .onTrue(Commands.runOnce(() -> m_IntakeSubsystem.rollersOut()))
+                .onFalse(Commands.runOnce(() -> m_IntakeSubsystem.stopRollers()));
 
     }
 
